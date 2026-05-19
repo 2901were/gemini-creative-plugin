@@ -83,7 +83,7 @@ Claude Code triggers these automatically when the conversation matches their des
 
 **"Gemini API token not configured"** — Run `get_configuration_status` to verify setup. Set `GEMINI_API_KEY` env var and restart Claude Code (MCPs inherit env at launch).
 
-**Images generating inconsistently across multiple calls** — Pass the previous image via the `images: [path]` parameter in `send_creative_message`. The bible-pinning approach + image references are what locks consistency.
+**Images generating inconsistently across multiple calls** — Pass the previous image via the `images: [path]` parameter in `send_creative_message`. The guide-pinning approach + image references are what locks consistency.
 
 **"Maximum sessions (5) reached"** — Run `get_session_info` and end an older session.
 

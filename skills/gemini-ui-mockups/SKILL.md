@@ -14,7 +14,7 @@ Generate a consistent set of UI mockup screens with a unified style using the Hy
 - Use **9:16** aspect ratio for individual mobile screens (constrains canvas = authentic pixel density for pixel art styles)
 - Use **compounding references**: Screen 3 references Screen 1 + Screen 2 for maximum consistency
 - Final mockup composition (adding phone frames, labels, layout) should be done externally in Figma/Photoshop/Sketch
-- For UI series sharing a brand with 3D items or other assets in the same IP, pin the **Game Art-Bible** at the top of every prompt (see the `gemini-prompts` skill § "The Game Art-Bible Pattern"). Cross-modality observation (2026-05-12): same `Identity:` + same `Palette:` produces visible family resemblance between 3D items and flat-vector UI screens — the `Identity:` line is the load-bearing anchor
+- For UI series sharing a brand with 3D items or other assets in the same IP, pin the **Identity Guide** at the top of every prompt (see the `gemini-prompts` skill § "The Identity Guide Pattern"). Cross-modality observation (2026-05-12): same `Identity:` + same `Palette:` produces visible family resemblance between 3D items and flat-vector UI screens — the `Identity:` line is the load-bearing anchor
 
 ## Steps
 

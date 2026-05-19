@@ -1,6 +1,6 @@
 ---
 name: gemini-workflows
-description: This skill should be used when the user asks "which workflow should I use", "how should I structure this generation task", "should I use a session", "is text-only enough", "Hybrid vs Game Art-Bible", or otherwise needs to choose between the four main generation patterns (Hybrid Workflow, Game Art-Bible Workflow, continue_editing, text-only sessions). Covers the decision tree, validated trade-off comparison, and special case for multi-screen UI composition.
+description: This skill should be used when the user asks "which workflow should I use", "how should I structure this generation task", "should I use a session", "is text-only enough", "Hybrid vs Identity Guide", or otherwise needs to choose between the four main generation patterns (Hybrid Workflow, Identity Guide Workflow, continue_editing, text-only sessions). Covers the decision tree, validated trade-off comparison, and special case for multi-screen UI composition.
 version: 0.4.0
 ---
 
@@ -17,7 +17,7 @@ Do you need visual consistency across multiple images?
 │   └── Hybrid Workflow (sessions + images param)  ← unmatched for subject-level repetition
 │
 ├── YES — thematic asset pack in one world (different items, shared IP/style)?
-│   └── Game Art-Bible Workflow (verbatim 5-line bible + variant deltas)
+│   └── Identity Guide Workflow (verbatim 5-line guide + variant deltas)
 │       ← NEW (validated 2026-05-12): simpler, lower token cost, no image-ref chaining
 │
 ├── YES — UI screen series with shared layout?
@@ -53,24 +53,24 @@ start_creative_session(model, aspectRatio, outputDirectory)
 
 ---
 
-## Workflow 2: Game Art-Bible (Asset pack, validated 2026-05-12)
+## Workflow 2: Identity Guide (Asset pack, validated 2026-05-12)
 
-**Use for:** Multi-item asset packs in a single world — evolution-chain atlases, themed item sets, UI screens sharing the same brand. The opposite use case to Hybrid: Hybrid locks one subject across calls; Game Art-Bible locks one *world* across calls and lets each call render a different subject.
+**Use for:** Multi-item asset packs in a single world — evolution-chain atlases, themed item sets, UI screens sharing the same brand. The opposite use case to Hybrid: Hybrid locks one subject across calls; Identity Guide locks one *world* across calls and lets each call render a different subject.
 
 **How it works:**
 ```
 For each call in the series:
-  generate_image(prompt = BIBLE_BLOCK + "\n\n" + VARIANT_DELTA)
+  generate_image(prompt = GUIDE_BLOCK + "\n\n" + VARIANT_DELTA)
 ```
 
-Where `BIBLE_BLOCK` is the byte-identical 5-line art bible (Identity / Form / Camera / Palette / Materials) and `VARIANT_DELTA` describes only what's different about *this* item.
+Where `GUIDE_BLOCK` is the byte-identical 5-line identity guide (Identity / Form / Camera / Palette / Materials) and `VARIANT_DELTA` describes only what's different about *this* item.
 
-See the `gemini-prompts` skill § "The Game Art-Bible Pattern" for the bible structure and the `gemini-game-assets` skill § "Tier Evolution Chain Atlases" for the merge-game-specific atlas pattern.
+See the `gemini-prompts` skill § "The Identity Guide Pattern" for the guide structure and the `gemini-game-assets` skill § "Tier Evolution Chain Atlases" for the merge-game-specific atlas pattern.
 
-**Why it works:** the bible gives the model byte-identical canonical context for the world. Variance comes from the variant delta only — the model isn't forced to reconcile changing style descriptions across calls.
+**Why it works:** the guide gives the model byte-identical canonical context for the world. Variance comes from the variant delta only — the model isn't forced to reconcile changing style descriptions across calls.
 
 **Validated results (2026-05-12):**
-- ✅ 27-image A/B/C experiment: verbatim text-only bible (Mode A) matched hybrid-with-refs (Mode C) on the Tideglass buildings theme
+- ✅ 27-image A/B/C experiment: verbatim text-only guide (Mode A) matched hybrid-with-refs (Mode C) on the Tideglass buildings theme
 - ✅ Production pass: 3/6 deliverables flawless on first single-call attempt; 2/6 acceptable with minor quirks
 - ⚠️ Atlas-shaped variants (dense labels + multi-tier layouts) require appending the negative-instruction suffix verbatim to suppress palette-legend rendering
 
@@ -97,13 +97,13 @@ generate_image(prompt)
 
 ---
 
-## Workflow 4: Text-only Sessions (Use with a bible, or for unrelated batches)
+## Workflow 4: Text-only Sessions (Use with an identity guide, or for unrelated batches)
 
-**Use for:** Either (a) Game Art-Bible Workflow (Workflow 2 above) which is technically a text-only session with a verbatim bible, or (b) generating unrelated batches with shared defaults (aspect ratio, output directory).
+**Use for:** Either (a) Identity Guide Workflow (Workflow 2 above) which is technically a text-only session with a verbatim guide, or (b) generating unrelated batches with shared defaults (aspect ratio, output directory).
 
 **Updated guidance (2026-05-12):** the earlier "text-only fails consistency" verdict was undertested. The reality is more nuanced:
 
-- ✅ Text-only with a **byte-identical art-bible** pinned at the top of every call (Game Art-Bible Workflow) **works** for thematic asset packs — validated 27 images + 6 deliverables.
+- ✅ Text-only with a **byte-identical identity guide** pinned at the top of every call (Identity Guide Workflow) **works** for thematic asset packs — validated 27 images + 6 deliverables.
 - ❌ Text-only with **paraphrased or freely-described style across calls** fails — empirically causes drift, validated by Mode-B paraphrase control in the experiment ("Lighthouse" came out as a tavern, palette specs got rendered as visible label charts).
 
 **Don't use text-only sessions for** subject-level repetition (same character across many poses) — that's what Hybrid Workflow is for.
@@ -112,7 +112,7 @@ generate_image(prompt)
 
 ## Workflow Comparison
 
-| Feature | Hybrid | Game Art-Bible | continue_editing | Text-only (no bible) |
+| Feature | Hybrid | Identity Guide | continue_editing | Text-only (no guide) |
 |---------|--------|---------------|-----------------|-----------|
 | Consistency — same subject across poses | ✅ Perfect | ⚠️ Weaker | ✅ Perfect | ❌ Poor |
 | Consistency — different items, same IP | ⚠️ Overkill | ✅ Strong | ❌ N/A | ❌ Poor |

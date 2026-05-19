@@ -1,6 +1,6 @@
 ---
 name: gemini-prompts
-description: This skill should be used when the user asks to "write a prompt for image generation", "design a generation prompt", "create a sprite prompt", "compose a Gemini prompt", "structure a prompt for game art", or otherwise needs to construct prompts for the gemini-creative-plugin. Covers the Game Art-Bible 5-line pattern, isolation suffix template for asset extraction, narrative-vs-keyword rules, and Do/Avoid prompting rules. Domain-specific prompt structures (sprites, environments, UI, icons, web) live in references/domain-structures.md.
+description: This skill should be used when the user asks to "write a prompt for image generation", "design a generation prompt", "create a sprite prompt", "compose a Gemini prompt", "structure a prompt for game art", or otherwise needs to construct prompts for the gemini-creative-plugin. Covers the Identity Guide 5-line pattern, isolation suffix template for asset extraction, narrative-vs-keyword rules, and Do/Avoid prompting rules. Domain-specific prompt structures (sprites, environments, UI, icons, web) live in references/domain-structures.md.
 version: 0.4.0
 ---
 
@@ -21,9 +21,9 @@ For per-domain prompt structures (sprites, environments, characters, UI, icons, 
 
 ---
 
-## The Game Art-Bible Pattern (validated 2026-05-12)
+## The Identity Guide Pattern (validated 2026-05-12)
 
-For series work — sprite sets, evolution-chain atlases, mockup screens, item packs — pin a byte-identical art-bible block at the top of every call in the series. The variant prompt then describes only what differs.
+For series work — sprite sets, evolution-chain atlases, mockup screens, item packs — pin a byte-identical identity guide block at the top of every call in the series. The variant prompt then describes only what differs.
 
 **Five-line structure:**
 
@@ -35,7 +35,9 @@ Palette: [Name #HEX, Name #HEX, ...]
 Materials: [textures, finishes, special-state effects]
 ```
 
-**Why it works:** the model treats the bible as canonical context for *what world this is in*. The variant prompt only has to answer "what specific item this time?". Cross-call consistency comes from the bible being **literally the same text** every time, not from passing image references.
+**Why it works:** the model treats the guide as canonical context for *what world this is in*. The variant prompt only has to answer "what specific item this time?". Cross-call consistency comes from the guide being **literally the same text** every time, not from passing image references.
+
+**The Identity line is load-bearing.** Give it a specific fictional project name — "Hollowfest Manor," "Crystal Caverns," "Tideglass Cove," whatever yours is. Real or invented; both work. Don't settle for category descriptors ("a Halloween merge-2 game") when an IP name is available. The model's prior for fictional-IP-cohesion activates when there's a name to anchor on — empirically a stronger consistency anchor than abstract world descriptors alone. Adapted from Dori Adar's original framing of the pattern.
 
 **When to use:**
 - Multiple thematic asset variants in the same world (3D items, evolution chains, UI screens with shared brand)
@@ -43,7 +45,7 @@ Materials: [textures, finishes, special-state effects]
 
 **When NOT to use:**
 - Single-subject repetition across poses → use the Hybrid Workflow with image refs instead (see `gemini-workflows` skill)
-- Unrelated one-off images → the bible is overhead with no payoff
+- Unrelated one-off images → the guide is overhead with no payoff
 
 Validated across a 27-image A/B/C experiment + 6-deliverable production pass.
 
@@ -57,14 +59,14 @@ Validated across a 27-image A/B/C experiment + 6-deliverable production pass.
 - Specify style explicitly (photorealistic, watercolor, pixel art, flat vector, 3D render)
 - Describe lighting and mood ("dramatic rim lighting", "soft diffused daylight")
 - Use positive framing ("clean white background" not "no clutter")
-- For series work: pin a byte-identical Game Art-Bible block at the top of every call (see above)
+- For series work: pin a byte-identical Identity Guide block at the top of every call (see above)
 - For dense-label or atlas-shaped prompts: append the negative-instruction suffix verbatim — `"Do not render color swatches, hex codes, or palette legends anywhere in the image."` Validated at 5/6 (production pass) + 2/2 (#14b A/B) ≈ 88% suppression.
 
 **Avoid:**
 - Pure keyword lists ("cat space neon cyberpunk")
 - Vague quality requests ("make it better", "improve the details")
 - Assuming Gemini will maintain details that weren't described — if it's important, name it
-- Re-describing the same style with different words across calls in a series — empirically causes consistency drift. Pin the bible verbatim instead.
+- Re-describing the same style with different words across calls in a series — empirically causes consistency drift. Pin the guide verbatim instead.
 - "For game asset extraction" / "for reference" framings inside the prompt — observed correlating with the palette-legend rendering bug; phrase in product terms instead ("for a Halloween merge-2 game", not "for asset extraction")
 
 ---

@@ -49460,6 +49460,26 @@ TECHNICAL:
 - Response Mode: image_only
 - High detail for mockup realism`
 };
+var IDENTITY_PREAMBLE = `## \u{1F3AF} Identity Anchor \u2014 read this before the template below
+
+Lead every prompt in a series with an **Identity** line that names a specific fictional project or IP. Pin this line byte-identical across every prompt in the series; vary only the per-asset text below it.
+
+\`\`\`
+Identity: [project/IP name + world + gameplay context]
+\`\`\`
+
+**Examples:**
+- \`Identity: Hollowfest Manor \u2014 a Halloween-themed merge-2 prototype, witch's autumnal estate\`
+- \`Identity: Crystal Caverns \u2014 an underground roguelike, player-character class\`
+- \`Identity: Tideglass Cove \u2014 a coastal-village builder, NPC line\`
+
+**Why it matters:** the IP name is the load-bearing consistency anchor across calls in a series. The model's prior for fictional-IP-cohesion activates when there's a name to lean on \u2014 abstract category descriptors ("a Halloween merge-2 game") alone are weaker. Real or invented; both work. Empirically shortens iteration loops: chains that took 4-9 iterations without explicit IP-naming converged in 1-3 iterations after the Identity line was led with a project name.
+
+See the \`gemini-prompts\` skill \xA7 "The Identity Guide Pattern" for the full 5-line guide structure and rationale.
+
+---
+
+`;
 async function handleGetPromptTemplate(request) {
   const { templateType } = request.params.arguments;
   const template = PROMPT_TEMPLATES[templateType];
@@ -49473,7 +49493,7 @@ async function handleGetPromptTemplate(request) {
     content: [
       {
         type: "text",
-        text: template
+        text: IDENTITY_PREAMBLE + template
       }
     ]
   };

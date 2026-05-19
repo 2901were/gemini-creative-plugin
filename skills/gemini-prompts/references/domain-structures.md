@@ -1,6 +1,6 @@
 # Domain-Specific Prompt Structures
 
-Per-domain prompt scaffolds. Pair with the universal structure and Game Art-Bible pattern from `SKILL.md`.
+Per-domain prompt scaffolds. Pair with the universal structure and Identity Guide pattern from `SKILL.md`.
 
 ## Game Sprites
 
@@ -8,10 +8,10 @@ Per-domain prompt scaffolds. Pair with the universal structure and Game Art-Bibl
 [Art style] [character/creature] in [pose/action], [front/side/top]-facing,
 [distinctive visual traits: colors, markings, equipment],
 [background: transparent/solid color],
-[style bible: resolution, palette name, outline, shading, proportions]
+[identity guide: resolution, palette name, outline, shading, proportions]
 ```
 
-**Style bible prefix (copy-paste before every sprite prompt):**
+**Style guide prefix (copy-paste before every sprite prompt):**
 `2D pixel art, 32x32 sprite, PICO-8 16-color palette, 1px black outline, 2-tone cel shading, transparent background —`
 
 Named palettes to specify: `PICO-8` (16 colors, retro), `Sweetie 16` (16, friendly), `Endesga 32` (32, fantasy RPG), `Apollo` (16, sci-fi), `Zughy 32` (32, horror), `GameBoy` (4, demake).
