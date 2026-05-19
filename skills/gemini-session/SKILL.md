@@ -92,7 +92,7 @@ Calling `generate_image`, `edit_image`, or `continue_editing` without an active 
 
 The MCP's "current session" is a single shared pointer — when **parallel subagents** run against the MCP, that pointer becomes a race. Each subagent's `start_creative_session` mutates the same singleton; whichever runs its first `send_creative_message` *latest* wins the routing. Earlier subagents' calls may end up writing to a sibling's output directory.
 
-**Observed:** during a 3-way parallel-subagent dispatch (2026-05-12 Adar validation experiment), 2 of 3 subagents had their first `send_creative_message` misrouted to the third's session. Outputs landed in the wrong directory before the subagents recovered by passing explicit `sessionId` on retry.
+**Observed:** during a 3-way parallel-subagent dispatch (validation experiment, 2026-05-12), 2 of 3 subagents had their first `send_creative_message` misrouted to the third's session. Outputs landed in the wrong directory before the subagents recovered by passing explicit `sessionId` on retry.
 
 **Always pass explicit `sessionId`** when:
 - Multiple subagents are running in parallel against this MCP
