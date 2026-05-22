@@ -109,6 +109,27 @@ Sessions expire after 30 minutes of inactivity. When returning to a character in
 - Do not use text-only prompts to "re-describe" a character — always pass the canonical image
 - Do not use the last generated image as anchor if you are unsatisfied with it — always trace back to the canonical base
 
+## Anchor Selection Dominates Over Prompt Text
+
+**The anchor image's geometry wins over prompt text for shape-level properties** — borders, frame thickness, baked-in line weight, corner treatments, silhouettes. Choose the anchor deliberately for the geometry you want propagated; don't pick "the best-looking" or "the most recent" by default.
+
+**Empirical evidence:** During a chained `edit_image` series for game tiles, the same prompt text ("thick gold-cream double-line border") produced different outputs depending on the anchor:
+- Anchor with thin single-line border → all 12 outputs inherited thin single-line border, despite 3 prompt rewrites
+- Anchor with thick double-line border → all 12 outputs inherited thick double-line border, prompt unchanged
+
+For shape-level properties, the anchor's pixel-level geometry is a substantially stronger signal than text tokens describing the same property at the same scale.
+
+**How to apply:**
+
+- **Initial series anchor** sets the geometry vocabulary for the whole tier/family. Pick for: border treatment, frame thickness, corner radius, silhouette, edge weight.
+- If no existing sprite has the right geometry, **generate a fresh anchor with `generate_image`** (not chained), prompting heavily for the geometric properties. Use *that* as the chain anchor.
+- **Mid-chain re-anchor** when drift accumulates — if colors get muddy or proportions wander over many chained edits, it's often cheaper to re-anchor than to fight the chain with prompts.
+- **Document the anchor explicitly** in your style bible: `Anchor: <filename>.png — chosen for: thick gold-cream double-line border, square corners, cream face.`
+
+**What this does NOT mean:**
+- The anchor doesn't dominate *everything* — color, subject identity, and small decorative content remain strongly prompt-influenced. Anchor dominance is strongest for the **geometry/structure layer** (borders, frames, silhouettes).
+- Not unique to one mechanic family. Same pattern shows up in character poses, tier-evolution chains, UI-element families, anywhere `edit_image` is chained.
+
 ## Model Choice
 
 - **`gemini-3.1-flash-image-preview`** (Nano Banana 2) — recommended default: 14 refs, fast, supports 4K

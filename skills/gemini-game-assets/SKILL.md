@@ -108,6 +108,40 @@ Once a Identity Guide is established, the model can over-apply its visual motifs
 
 ---
 
+## Clean-Background / Uniform-Field Gens — Use 5x Emphatic Negation (validated 2026-05-20)
+
+When prompting for a **clean, uniform background field** (silk, plaster, paper, sky, wood, stone, water), single-mention negations like "no patterns, no motifs" are frequently ignored — the model's strong association of the material with its typical decorations (silk → brocade, wood → grain lines, sky → clouds) dominates. **Stack 5+ explicit `NO X` clauses with `ABSOLUTELY NO`** and enumerate the specific decorations.
+
+```
+[Material + adjective], uniform color.
+ABSOLUTELY NO patterns,
+NO motifs,
+NO <material-specific decoration #1>,
+NO <material-specific decoration #2>,
+NO <material-specific decoration #3>,
+NO designs or illustrations visible.
+```
+
+**Empirical evidence:** A first-pass jade silk background generation with the standard "no patterns, no motifs" negation came back with scattered calligraphy-like marks and faint weave patterns. Bumping to `ABSOLUTELY NO patterns, NO motifs, NO calligraphy marks, NO swirls, NO brocade designs, NO weave patterns visible.` produced a clean uniform field on the next try with no other prompt changes.
+
+**Material-specific decoration table** (enumerate these for each material you negate):
+
+| Material | Decorations to negate |
+|---|---|
+| Silk | brocade, weave patterns, calligraphy, embroidery, motifs |
+| Plaster | cracks, stains, texture variation, brushstrokes, fresco fragments |
+| Paper | watermarks, ruled lines, deckle edges, paper grain, ink bleed |
+| Sky | clouds, sun, stars, gradient bands, haze patterns |
+| Wood | grain lines, knots, planks, finish reflections, scratches |
+| Stone | veins, cracks, moss, weathering, carvings |
+| Water | ripples, waves, reflections, foam, surface highlights |
+
+**Sweet spot is 5–7 explicit `NO X` clauses.** Past that, negations start getting interpreted creatively or ignored. Enumerate specific decorations the model would typically associate with the material; generic "no patterns" alone doesn't reach those associations.
+
+**Not a substitute for the right `material × adjective` combo.** "Dark jade silk uniform color" + 5 specific negations works; "silk" + 50 negations does not. Pick the material descriptor first; then layer the negations on top.
+
+---
+
 ## Additional Resources
 
 - [references/palette-and-resolution.md](references/palette-and-resolution.md) — resolution tables, palette reference, quick-start prefixes
