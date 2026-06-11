@@ -47710,16 +47710,18 @@ var MODEL_REGISTRY = {
     supportsResolution: true,
     resolutionOptions: ["1K", "2K", "4K"],
     supportsGrounding: true,
-    supportsThinkingMode: true
+    supportsThinkingMode: true,
+    thinkingLevels: ["minimal", "low", "medium", "high"]
   },
   "gemini-3.1-flash-image-preview": {
     id: "gemini-3.1-flash-image-preview",
     displayName: "Gemini 3.1 Flash (Nano Banana 2)",
     maxReferenceImages: 14,
     supportsResolution: true,
-    resolutionOptions: ["0.5K", "1K", "2K", "4K"],
+    resolutionOptions: ["1K", "2K", "4K"],
     supportsGrounding: true,
-    supportsThinkingMode: true
+    supportsThinkingMode: true,
+    thinkingLevels: ["minimal", "high"]
   }
 };
 var DEFAULT_MODEL = "gemini-3.1-flash-image-preview";
@@ -47961,6 +47963,12 @@ function validateModelSpecificParams(modelId, params) {
       `Model ${capabilities.displayName} does not support resolution control. Use ${DEFAULT_MODEL} for 1K/2K/4K resolution.`
     );
   }
+  if (params.resolution && !capabilities.resolutionOptions.includes(params.resolution)) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Model ${capabilities.displayName} does not support resolution '${params.resolution}'. Supported: ${capabilities.resolutionOptions.join(", ")}.`
+    );
+  }
   if (params.enableGrounding && !capabilities.supportsGrounding) {
     throw new McpError(
       ErrorCode.InvalidParams,
@@ -47971,6 +47979,12 @@ function validateModelSpecificParams(modelId, params) {
     throw new McpError(
       ErrorCode.InvalidParams,
       `Model ${capabilities.displayName} does not support thinking mode. Use ${DEFAULT_MODEL} for thinking mode.`
+    );
+  }
+  if (params.thinkingLevel && !capabilities.thinkingLevels.includes(params.thinkingLevel)) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Model ${capabilities.displayName} does not support thinkingLevel '${params.thinkingLevel}'. Supported: ${capabilities.thinkingLevels.join(", ")}.`
     );
   }
   if (params.referenceImageCount !== void 0 && params.referenceImageCount > capabilities.maxReferenceImages) {
@@ -48144,31 +48158,8 @@ async function handleStartCreativeSession(request, configMgr, sessionMgr) {
     thinkingLevel
   } = request.params.arguments;
   const sessionModel = model || DEFAULT_MODEL;
-  const modelCapabilities = MODEL_REGISTRY[sessionModel];
-  if (!modelCapabilities) {
-    throw new McpError(
-      ErrorCode.InvalidParams,
-      `Unknown model: ${sessionModel}. Available models: ${Object.keys(MODEL_REGISTRY).join(", ")}`
-    );
-  }
-  if (resolution && !modelCapabilities.supportsResolution) {
-    throw new McpError(
-      ErrorCode.InvalidParams,
-      `Model ${sessionModel} does not support resolution parameter. Only Gemini 3 Pro supports this.`
-    );
-  }
-  if (enableGrounding && !modelCapabilities.supportsGrounding) {
-    throw new McpError(
-      ErrorCode.InvalidParams,
-      `Model ${sessionModel} does not support grounding. Only Gemini 3 Pro supports this.`
-    );
-  }
-  if (thinkingLevel && !modelCapabilities.supportsThinkingMode) {
-    throw new McpError(
-      ErrorCode.InvalidParams,
-      `Model ${sessionModel} does not support thinking level. Only Gemini 3 Pro supports this.`
-    );
-  }
+  const modelCapabilities = getModelCapabilities(sessionModel);
+  validateModelSpecificParams(sessionModel, { resolution, enableGrounding, thinkingLevel });
   let resolvedOutputDir;
   if (outputDirectory) {
     resolvedOutputDir = validateOutputDirectory(outputDirectory);
@@ -49598,12 +49589,12 @@ WHAT HAPPENS:
         model: {
           type: "string",
           enum: ["gemini-3.1-flash-image-preview", "gemini-3-pro-image-preview"],
-          description: "Gemini model to use (default: gemini-3.1-flash-image-preview / Nano Banana 2). Nano Banana 2 supports 14 refs, 0.5K-4K, grounding, thinking. 3 Pro supports 14 refs, 1K-4K."
+          description: "Gemini model to use (default: gemini-3.1-flash-image-preview / Nano Banana 2). Nano Banana 2 supports 14 refs, 1K-4K, grounding, thinking (minimal/high). 3 Pro supports 14 refs, 1K-4K, thinking (all levels)."
         },
         resolution: {
           type: "string",
-          enum: ["0.5K", "1K", "2K", "4K"],
-          description: "Image resolution (Nano Banana 2 / Gemini 3 Pro only). Default: 1K. 0.5K is fastest, 4K is highest quality."
+          enum: ["1K", "2K", "4K"],
+          description: "Image resolution (Nano Banana 2 / Gemini 3 Pro only). Default: 1K. 4K is highest quality."
         },
         enableGrounding: {
           type: "boolean",
@@ -49611,8 +49602,8 @@ WHAT HAPPENS:
         },
         thinkingLevel: {
           type: "string",
-          enum: ["low", "medium", "high"],
-          description: "Thinking mode level. Supported by both Nano Banana 2 and Nano Banana Pro. Default: 'high' \u2014 the MCP defaults to high thinking for careful image generation (atlases, dense-label compositions, IP-consistent series). Pass 'low' or 'medium' to reduce thinking tokens and latency on simpler prompts."
+          enum: ["minimal", "low", "medium", "high"],
+          description: "Thinking mode level. Per-model support: Nano Banana 2 accepts 'minimal' or 'high'; Nano Banana Pro accepts all four. Default: 'high' \u2014 the MCP defaults to high thinking for careful image generation (atlases, dense-label compositions, IP-consistent series). Pass 'minimal' (or 'low'/'medium' on Pro) to reduce thinking tokens and latency on simpler prompts."
         },
         outputDirectory: {
           type: "string",
@@ -49659,12 +49650,12 @@ WHAT HAPPENS:
         model: {
           type: "string",
           enum: ["gemini-3.1-flash-image-preview", "gemini-3-pro-image-preview"],
-          description: "Gemini model to use (default: gemini-3.1-flash-image-preview / Nano Banana 2). Nano Banana 2 supports 14 refs, 0.5K-4K, grounding, thinking. 3 Pro supports 14 refs, 1K-4K."
+          description: "Gemini model to use (default: gemini-3.1-flash-image-preview / Nano Banana 2). Nano Banana 2 supports 14 refs, 1K-4K, grounding, thinking (minimal/high). 3 Pro supports 14 refs, 1K-4K, thinking (all levels)."
         },
         resolution: {
           type: "string",
-          enum: ["0.5K", "1K", "2K", "4K"],
-          description: "Image resolution (Nano Banana 2 / Gemini 3 Pro only). Default: 1K. 0.5K is fastest, 4K is highest quality."
+          enum: ["1K", "2K", "4K"],
+          description: "Image resolution (Nano Banana 2 / Gemini 3 Pro only). Default: 1K. 4K is highest quality."
         },
         enableGrounding: {
           type: "boolean",
@@ -49672,8 +49663,8 @@ WHAT HAPPENS:
         },
         thinkingLevel: {
           type: "string",
-          enum: ["low", "medium", "high"],
-          description: "Thinking mode level. Supported by both Nano Banana 2 and Nano Banana Pro. Default: 'high' \u2014 the MCP defaults to high thinking for careful image generation (atlases, dense-label compositions, IP-consistent series). Pass 'low' or 'medium' to reduce thinking tokens and latency on simpler prompts."
+          enum: ["minimal", "low", "medium", "high"],
+          description: "Thinking mode level. Per-model support: Nano Banana 2 accepts 'minimal' or 'high'; Nano Banana Pro accepts all four. Default: 'high' \u2014 the MCP defaults to high thinking for careful image generation (atlases, dense-label compositions, IP-consistent series). Pass 'minimal' (or 'low'/'medium' on Pro) to reduce thinking tokens and latency on simpler prompts."
         },
         outputDirectory: {
           type: "string",
@@ -49786,7 +49777,7 @@ CONFIGURATION PRIORITY (checked in this order):
         },
         resolution: {
           type: "string",
-          enum: ["0.5K", "1K", "2K", "4K"],
+          enum: ["1K", "2K", "4K"],
           description: "Image resolution (Nano Banana 2 / Gemini 3 Pro only). Default: 1K"
         },
         enableGrounding: {
@@ -49795,8 +49786,8 @@ CONFIGURATION PRIORITY (checked in this order):
         },
         thinkingLevel: {
           type: "string",
-          enum: ["low", "medium", "high"],
-          description: "Thinking mode level. Supported by both Nano Banana 2 and Nano Banana Pro. Default: 'high' \u2014 the MCP defaults to high thinking for careful image generation. Pass 'low' or 'medium' to reduce thinking tokens and latency on simpler prompts."
+          enum: ["minimal", "low", "medium", "high"],
+          description: "Thinking mode level. Per-model support: Nano Banana 2 accepts 'minimal' or 'high'; Nano Banana Pro accepts all four. Default: 'high' \u2014 the MCP defaults to high thinking for careful image generation. Pass 'minimal' (or 'low'/'medium' on Pro) to reduce thinking tokens and latency on simpler prompts."
         }
       }
     }

@@ -1,6 +1,6 @@
 {
   "name": "gemini-creative-plugin",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Gemini Creative — an MCP-driven image generation toolkit with auto-activating skills for game asset workflows, UI mockup series, character sprites, and prompt engineering. Wraps Google's Gemini 3 image models (Nano Banana 2 default, Nano Banana Pro) behind a sessions-first API designed for LLM agent consumers.",
   "author": {
     "name": "Vladimir Bulanenko",

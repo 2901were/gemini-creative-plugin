@@ -28,18 +28,18 @@ Run `start_creative_session` with these parameters:
 | `outputDirectory` | Where to save images (absolute path) | `"/Users/dev/my-game/assets"` |
 | `resolution` | Nano Banana 2 / 3 Pro only | `"1K"`, `"2K"`, `"4K"` |
 | `enableGrounding` | Real-world image search grounding | `true` |
-| `thinkingLevel` | Reasoning depth | `"minimal"` or `"high"` |
+| `thinkingLevel` | Reasoning depth | `"minimal"`/`"high"` (NB2); + `"low"`/`"medium"` on Pro |
 
 ## Model Selection Guide
 
 | Model | Name | Speed | Max Refs | Resolution | Grounding | Thinking |
 |-------|------|-------|----------|------------|-----------|----------|
-| `gemini-3.1-flash-image-preview` | Nano Banana 2 | ⚡ Fast | 14 | 0.5K–4K | ✅ | ✅ minimal/high |
+| `gemini-3.1-flash-image-preview` | Nano Banana 2 | ⚡ Fast | 14 | 1K–4K | ✅ | ✅ minimal/high |
 | `gemini-3-pro-image-preview` | Nano Banana Pro | 🐢 Slow | 14 | 1K–4K | ✅ | ✅ low/high |
 
 **When to use each model:**
 
-- **Nano Banana 2 (default)** — use for everything. Fast, full capabilities, 14 refs, 0.5K–4K resolution.
+- **Nano Banana 2 (default)** — use for everything. Fast, full capabilities, 14 refs, 1K–4K resolution.
 - **Nano Banana Pro** — use when Nano Banana 2 output quality is not good enough and you can accept slower generation. The Pro model excels at: complex scenes with fine detail, photorealistic output, architectural/product visualization, and prompts where thinking mode meaningfully improves composition. Cost: ~3–5× slower.
 
 **Practical rule:** Start with Nano Banana 2. Only switch to Pro if you're unhappy with a result after 2–3 prompt iterations.
