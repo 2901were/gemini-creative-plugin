@@ -48360,6 +48360,7 @@ async function handleGenerateImage(request, configMgr, sessionMgr, lastImageStat
   }
   const {
     prompt,
+    referenceImages: rawRefImages,
     aspectRatio,
     responseMode,
     model,
@@ -48368,10 +48369,31 @@ async function handleGenerateImage(request, configMgr, sessionMgr, lastImageStat
     thinkingLevel,
     outputDirectory: rawOutputDirectory
   } = request.params.arguments;
+  const referenceImages = coerceStringArray(rawRefImages) ?? [];
   const selectedModel = model || DEFAULT_MODEL;
   getModelCapabilities(selectedModel);
-  validateModelSpecificParams(selectedModel, { resolution, enableGrounding, thinkingLevel });
+  validateModelSpecificParams(selectedModel, {
+    resolution,
+    enableGrounding,
+    thinkingLevel,
+    // NOT length + 1 (unlike edit_image): generate has no main image — refs
+    // are the only image inputs counted against the model cap.
+    referenceImageCount: referenceImages.length
+  });
   const overrideOutputDir = rawOutputDirectory ? validateOutputDirectory(rawOutputDirectory) : void 0;
+  if (referenceImages.length > 0) {
+    const validations = await Promise.all(
+      referenceImages.map((refPath) => validateImagePath(refPath))
+    );
+    for (let i2 = 0; i2 < validations.length; i2++) {
+      if (!validations[i2].valid) {
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          `Reference image error: ${validations[i2].error} (${referenceImages[i2]})`
+        );
+      }
+    }
+  }
   try {
     const sessionId = await sessionMgr.ensureActiveSession({
       aspectRatio,
@@ -48391,9 +48413,16 @@ async function handleGenerateImage(request, configMgr, sessionMgr, lastImageStat
       enableGrounding,
       thinkingLevel
     });
+    let contents = prompt;
+    if (referenceImages.length > 0) {
+      const loaded = await Promise.all(
+        referenceImages.map((refPath) => loadImageAsInlineData(refPath))
+      );
+      contents = [{ parts: [...loaded, { text: prompt }] }];
+    }
     const response = await configMgr.genAI.models.generateContent({
       model: selectedModel,
-      contents: prompt,
+      contents,
       config
     });
     const content = [];
@@ -48407,6 +48436,8 @@ async function handleGenerateImage(request, configMgr, sessionMgr, lastImageStat
 Aspect Ratio: ${aspectRatio}`;
     if (responseMode) statusText += `
 Response Mode: ${responseMode}`;
+    if (referenceImages.length > 0) statusText += `
+\u2705 Reference images used: ${referenceImages.length}`;
     if (textContent) statusText += `
 
 \u{1F4DD} Gemini Description:
@@ -49536,7 +49567,7 @@ WHAT HAPPENS:
   },
   {
     name: "generate_image",
-    description: `Generate a new image from a text description. Returns the file path of the saved image.`,
+    description: `Generate a new image from a text description, optionally anchored to reference images (character identity, style, palette). For multi-image consistent SERIES, prefer sessions: start_creative_session + send_creative_message with images. Returns the file path of the saved image.`,
     annotations: {
       openWorldHint: true
     },
@@ -49546,6 +49577,13 @@ WHAT HAPPENS:
         prompt: {
           type: "string",
           description: "Detailed text description of the NEW image to create from scratch"
+        },
+        referenceImages: {
+          type: "array",
+          items: {
+            type: "string"
+          },
+          description: "Optional array of EXACT absolute file paths to reference images (character identity, style anchors, palette sources). Max 14 (model-dependent). ALL paths must be valid \u2014 the call fails rather than silently generating without a requested reference."
         },
         aspectRatio: {
           type: "string",

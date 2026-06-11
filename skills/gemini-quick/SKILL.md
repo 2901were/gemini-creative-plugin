@@ -39,6 +39,8 @@ Generate a single image fast, without session overhead. Best for one-off images,
    - Include: subject, style, lighting, mood, composition, color palette
    - Avoid vague keywords — "a cozy coffee shop with warm amber lighting, steam rising from cups, watercolor style" not "coffee shop"
 
+   For a one-off anchored to an EXISTING image (same character in a new scene, style-matched companion piece), pass `referenceImages: ["/path/to/ref.png"]` — no session needed. All ref paths must be valid; the call fails rather than generating unanchored. For a multi-image consistent series, switch to sessions (see gemini-workflows).
+
 5. **Visually verify** with Read tool. If the result needs tweaking, use `continue_editing` with a correction prompt.
 
 6. **Report back** with the image path and any notable details about what was generated.

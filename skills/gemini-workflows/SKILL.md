@@ -24,7 +24,7 @@ Do you need visual consistency across multiple images?
 │   └── Hybrid Workflow (image refs lock in exact repeated header/banner/grid layouts)
 │
 └── NO — unrelated batches?
-    ├── One image → generate_image
+    ├── One image → generate_image (+ referenceImages to anchor a one-off to existing art)
     └── Many unrelated images → text-only session or repeated generate_image
 ```
 

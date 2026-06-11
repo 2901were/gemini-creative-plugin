@@ -2,7 +2,7 @@
 
 A Claude Code plugin wrapping a Model Context Protocol (MCP) server for AI image generation using Google's Gemini 3 image models. Designed for LLM agents — built around sessions, organized file output, and 9 auto-activating skills covering game art, UI mockups, character sprites, and prompt engineering.
 
-**Version:** v0.4.3 · **Default model:** Gemini 3.1 Flash (Nano Banana 2) · **Also supports:** Gemini 3 Pro · **License:** MIT
+**Version:** v0.5.0 · **Default model:** Gemini 3.1 Flash (Nano Banana 2) · **Also supports:** Gemini 3 Pro · **License:** MIT
 
 ---
 
@@ -30,7 +30,7 @@ That's it. The plugin registers the MCP server and the 9 auto-activating skills.
 ### 10 MCP tools
 
 **Image generation:**
-- `generate_image` — text-to-image with aspect ratio, resolution, and thinking-level controls
+- `generate_image` — text-to-image with optional reference images (max 14, identity/style anchors), aspect ratio, resolution, and thinking-level controls
 - `edit_image` — modify an existing image with text + up to 14 reference images
 - `continue_editing` — iterate on the last image without re-specifying its path
 
